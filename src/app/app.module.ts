@@ -4,13 +4,19 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
+import { ExLib2Module } from 'ex-lib2';
+import { NoobForDirective } from 'ex-lib2';
+import { FooBarComponent } from './foo-bar/foo-bar.component';
+
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FooBarComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ExLib2Module
   ],
   providers: [],
   bootstrap: [AppComponent]
