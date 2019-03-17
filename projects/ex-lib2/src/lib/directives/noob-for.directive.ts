@@ -6,7 +6,7 @@ import { Directive, TemplateRef, ViewContainerRef, OnChanges, Input } from '@ang
 export class NoobForDirective implements OnChanges {
 
   @Input() libNoobForIn: any[];
-  @Input() libNoobForIf: (noobIf) => boolean;
+  @Input() libNoobForIf: (anyone) => boolean;
 
   constructor(private templateRef: TemplateRef<any>,
               private viewContainerRef: ViewContainerRef) { }

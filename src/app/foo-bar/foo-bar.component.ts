@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { NoobForDirective } from 'ex-lib2';
 
 @Component({
@@ -8,7 +8,7 @@ import { NoobForDirective } from 'ex-lib2';
 })
 export class FooBarComponent implements OnInit {
 
-  constructor() { }
+  constructor(private cd: ChangeDetectorRef) { }
 
   public Wolves: Wolf[] = [
     {id: 1, name: 'Nightrunner'},
@@ -26,24 +26,29 @@ export class FooBarComponent implements OnInit {
     {id: 13, name: 'Silvergrace'}
   ];
 
-  public selectedWolfId: number;
+  public selectedWolfId = 1;
 
   ngOnInit() {
     this.selectedWolfId = 1;
   }
 
   wolfSelected(wolf: Wolf): boolean {
-    console.log('my wolf is', wolf);
-    if (wolf.id === this.selectedWolfId) {
+    // console.log('my wolf is', wolf);
+    // console.log('selected wolf id', this.selectedWolfId);
+/*    if (wolf.id === this.selectedWolfId) { did not work as the method did not reexecute after change detection
+      console.log('returning true');
       return true;
     } else {
+      console.log('returning false');
       return false;
-    }
+    }*/
+    return wolf.id < 10;
   }
 
   chooseWolf(selector: boolean) {
     this.selectedWolfId = selector ? this.selectedWolfId + 1 : this.selectedWolfId - 1;
-    console.log('selected id:', this.selectedWolfId);
+    // console.log('selected id:', this.selectedWolfId);
+    this.cd.markForCheck();
   }
 }
 

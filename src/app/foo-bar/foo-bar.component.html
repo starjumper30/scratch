@@ -4,7 +4,7 @@
 <h3>Hello Wolfrider!!</h3>
 
 <ul>
-  <li *libNoobFor="let wolf in Wolves; index as i">
+  <li *libNoobFor="let wolf in Wolves if wolfSelected; index as i">
     {{i+1}}: {{wolf.name}}
   </li>
 </ul>
