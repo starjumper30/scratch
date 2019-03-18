@@ -24,6 +24,12 @@
       ],
       "feature1/*": [
         "dist/feature1/*"
+      ],
+      "ex-lib2": [
+        "dist/ex-lib2"
+      ],
+      "ex-lib2/*": [
+        "dist/ex-lib2/*"
       ]
     }
   }

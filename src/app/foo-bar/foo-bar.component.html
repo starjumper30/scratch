@@ -1,0 +1,10 @@
+<button [disabled]="selectedWolfId === 1" (click)="chooseWolf(false)">Previous</button>
+<button [disabled]="selectedWolfId === 13" (click)="chooseWolf(true)">Next</button>
+
+<h3>Hello Wolfrider!!</h3>
+
+<ul>
+  <li *libNoobFor="let wolf in Wolves if wolfSelected; index as i">
+    {{i+1}}: {{wolf.name}}
+  </li>
+</ul>
