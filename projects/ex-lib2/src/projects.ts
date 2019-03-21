@@ -7,3 +7,4 @@ export * from './lib/ex-lib2.component';
 export * from './lib/ex-lib2.module';
 export * from './lib/foo/foo.component';
 export * from './lib/directives/noob-for.directive';
+export * from './lib/directives/noob-carousel.directive';

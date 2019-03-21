@@ -25,7 +25,6 @@ export class FooBarComponent implements OnInit {
     {id: 12, name: 'Hotburr'},
     {id: 13, name: 'Silvergrace'}
   ];
-
   public selectedWolfId = 1;
 
   ngOnInit() {

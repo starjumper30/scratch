@@ -200,6 +200,41 @@
           }
         }
       }
+    },
+    "noob-comm": {
+      "root": "projects/noob-comm",
+      "sourceRoot": "projects/noob-comm/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/noob-comm/tsconfig.lib.json",
+            "project": "projects/noob-comm/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/noob-comm/src/test.ts",
+            "tsConfig": "projects/noob-comm/tsconfig.spec.json",
+            "karmaConfig": "projects/noob-comm/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/noob-comm/tsconfig.lib.json",
+              "projects/noob-comm/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "clientSideComposition"
