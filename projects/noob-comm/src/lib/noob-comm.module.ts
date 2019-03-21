@@ -4,6 +4,15 @@ import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {RecogniseInterceptor, Recognition} from './recognise-interceptor';
 import {API_URL, NoobCommService} from './noob-comm.service';
 
+export function foo(noobComm: NoobCommService) {
+  return new RecogniseInterceptor(NoobCommService.getRecognition()); // Is this even working? @Chris,please help!!
+}
+
+export function bar() {
+  return new RecogniseInterceptor(1);
+  // Am i using a lambda here to inject the recognise value? Wow!!
+}
+
 @NgModule({
   declarations: [NoobCommComponent],
   imports: [
@@ -19,17 +28,12 @@ import {API_URL, NoobCommService} from './noob-comm.service';
   // }
     {
       provide: Recognition,
-      useFactory: () => {
-        return new RecogniseInterceptor(1);
-        // Am i using a lambda here to inject the recognise value? Wow!!
-      }
+      useFactory: bar
     },
     // But what if I need a service. I need deps, i cannot only specify
     {
       provide : Recognition,
-      useFactory: (noobComm: NoobCommService) => {
-        return new RecogniseInterceptor(NoobCommService.getRecognition()); // Is this even working? @Chris,please help!!
-      },
+      useFactory: foo,
       deps: [NoobCommService]
     },
     NoobCommService, // I am generating first instance of service, but if i use useClass to provide a service say
