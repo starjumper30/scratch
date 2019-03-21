@@ -8,3 +8,10 @@
     {{i+1}}: {{wolf.name}}
   </li>
 </ul>
+
+<p> This carousel shows names because I can't find images :(</p>
+<div *libNoobCarousel="let wolf in Wolves; let ctrl = controller">
+  <p> {{wolf.name}}</p>
+  <button (click)="ctrl.backward()">Previous</button>
+  <button (click)="ctrl.forward()">Next</button>
+</div>

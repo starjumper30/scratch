@@ -30,6 +30,12 @@
       ],
       "ex-lib2/*": [
         "dist/ex-lib2/*"
+      ],
+      "noob-comm": [
+        "dist/noob-comm"
+      ],
+      "noob-comm/*": [
+        "dist/noob-comm/*"
       ]
     }
   }

@@ -9,8 +9,7 @@ import { ExLib2Module, NoobForDirective } from 'ex-lib2';
   ],
   imports: [
     BrowserModule,
-    ExLib2Module,
-    NoobForDirective
+    ExLib2Module
   ],
   providers: [],
   bootstrap: []

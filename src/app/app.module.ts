@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 
 import { ExLib2Module } from 'ex-lib2';
 import { NoobForDirective } from 'ex-lib2';
+import { NoobCarouselDirective } from 'ex-lib2';
 import { FooBarComponent } from './foo-bar/foo-bar.component';
 
 @NgModule({
