@@ -7,4 +7,17 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'clientSideComposition';
+
+
+  tileData = [
+    {
+      title: 'tile 1'
+    },
+    {
+      title: 'tile 2'
+    },
+    {
+      tile: 'tile 3'
+    }
+  ];
 }

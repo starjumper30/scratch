@@ -8,16 +8,22 @@ import { ExLib2Module } from 'ex-lib2';
 import { NoobForDirective } from 'ex-lib2';
 import { NoobCarouselDirective } from 'ex-lib2';
 import { FooBarComponent } from './foo-bar/foo-bar.component';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {NgbCarouselModule} from '@ng-bootstrap/ng-bootstrap';
+import { TileComponent } from './tile/tile.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    FooBarComponent
+    FooBarComponent,
+    TileComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
-    ExLib2Module
+    ExLib2Module,
+    NgbCarouselModule
   ],
   providers: [],
   bootstrap: [AppComponent]

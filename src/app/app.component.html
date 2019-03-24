@@ -24,3 +24,10 @@
 <lib-foo></lib-foo>
 
 <app-foo-bar></app-foo-bar>
+
+
+<ngb-carousel *ngIf="tileData">
+  <ng-container *ngFor="let t of tileData">
+      <app-tile *ngbSlide [data]="t"></app-tile>
+  </ng-container>
+</ngb-carousel>
