@@ -236,6 +236,41 @@
           }
         }
       }
+    },
+    "ngbootstrap-carousel-extended": {
+      "root": "projects/ngbootstrap-carousel-extended",
+      "sourceRoot": "projects/ngbootstrap-carousel-extended/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ngbootstrap-carousel-extended/tsconfig.lib.json",
+            "project": "projects/ngbootstrap-carousel-extended/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ngbootstrap-carousel-extended/src/test.ts",
+            "tsConfig": "projects/ngbootstrap-carousel-extended/tsconfig.spec.json",
+            "karmaConfig": "projects/ngbootstrap-carousel-extended/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ngbootstrap-carousel-extended/tsconfig.lib.json",
+              "projects/ngbootstrap-carousel-extended/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "clientSideComposition"

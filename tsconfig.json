@@ -36,6 +36,12 @@
       ],
       "noob-comm/*": [
         "dist/noob-comm/*"
+      ],
+      "ngbootstrap-carousel-extended": [
+        "dist/ngbootstrap-carousel-extended"
+      ],
+      "ngbootstrap-carousel-extended/*": [
+        "dist/ngbootstrap-carousel-extended/*"
       ]
     }
   }
