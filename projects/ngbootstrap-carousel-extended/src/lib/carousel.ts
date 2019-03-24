@@ -29,7 +29,7 @@ let nextId = 0;
 /**
  * Represents an individual slide to be used within a carousel.
  */
-@Directive({selector: 'ng-template[ngbSlide]'})
+@Directive({selector: 'ng-template[ngbSlideExtended]'})
 export class NgbSlideDirective {
   /**
    * Unique slide identifier. Must be unique for the entire document for proper accessibility support.
@@ -43,7 +43,7 @@ export class NgbSlideDirective {
  * Directive to easily create carousels based on Bootstrap's markup.
  */
 @Component({
-  selector: 'ngb-carousel',
+  selector: 'ngb-carousel-extended',
   exportAs: 'ngbCarousel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
