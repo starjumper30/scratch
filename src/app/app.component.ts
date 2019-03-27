@@ -17,7 +17,10 @@ export class AppComponent {
       title: 'tile 2'
     },
     {
-      tile: 'tile 3'
+      title: 'tile 3'
+    },
+    {
+      title: 'tile 4'
     }
   ];
 }

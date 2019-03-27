@@ -57,11 +57,13 @@ export class NgbSlideDirective {
   },
   template: `
     <ol class="carousel-indicators" *ngIf="showNavigationIndicators">
-      <li *ngFor="let slide of slides" [id]="slide.id" [class.active]="slide.id === activeId"
-          (click)="select(slide.id); pauseOnHover && pause()"></li>
+      <li *ngFor="let slide of slides; index as i;" [id]="slide.id" 
+          [class.active]="i === activeIdx || (i > activeIdx && i < activeIdx + previewSize)"
+          (click)="select(i); pauseOnHover && pause()"></li>
     </ol>
     <div class="carousel-inner">
-      <div *ngFor="let slide of slides" class="carousel-item" [class.active]="slide.id === activeId">
+      <div *ngFor="let slide of slides; index as i" class="carousel-item"
+           [class.active]="i === activeIdx || (i > activeIdx && i < activeIdx + previewSize)">
         <ng-container [ngTemplateOutlet]="slide.tplRef"></ng-container>
       </div>
     </div>
@@ -84,9 +86,9 @@ export class NgbCarousel implements AfterContentChecked,
   private _stop$ = new Subject<void>();
 
   /**
-   * The active slide id.
+   * The active slide idx.
    */
-  @Input() activeId: string;
+  @Input() activeIdx: number;
 
 
   /**
@@ -122,11 +124,15 @@ export class NgbCarousel implements AfterContentChecked,
    */
   @Input() showNavigationIndicators: boolean;
 
+  previewSize = 1;
+
   /**
    * A carousel slide event fired when the slide transition is completed.
    * See NgbSlideEvent for payload details
    */
   @Output() slide = new EventEmitter<NgbSlideEvent>();
+
+
 
   constructor(
       config: NgbCarouselConfig, @Inject(PLATFORM_ID) private _platformId, private _ngZone: NgZone,
@@ -158,8 +164,8 @@ export class NgbCarousel implements AfterContentChecked,
   }
 
   ngAfterContentChecked() {
-    let activeSlide = this._getSlideById(this.activeId);
-    this.activeId = activeSlide ? activeSlide.id : (this.slides.length ? this.slides.first.id : null);
+    // let activeSlide = this._getSlideById(this.activeIdx);
+    this.activeIdx = this.activeIdx >= 0 && this.activeIdx < this.slides.length ? this.activeIdx : 0;
   }
 
   ngOnDestroy() { this._destroy$.next(); }
@@ -173,17 +179,17 @@ export class NgbCarousel implements AfterContentChecked,
   /**
    * Navigate to a slide with the specified identifier.
    */
-  select(slideId: string) { this._cycleToSelected(slideId, this._getSlideEventDirection(this.activeId, slideId)); }
+  select(slideIdx: number) { this._cycleToSelected(slideIdx, this._getSlideEventDirection(this.activeIdx, slideIdx)); }
 
   /**
    * Navigate to the next slide.
    */
-  prev() { this._cycleToSelected(this._getPrevSlide(this.activeId), NgbSlideEventDirection.RIGHT); }
+  prev() { this._cycleToSelected(this._getPrevSlide(this.activeIdx), NgbSlideEventDirection.RIGHT); }
 
   /**
    * Navigate to the next slide.
    */
-  next() { this._cycleToSelected(this._getNextSlide(this.activeId), NgbSlideEventDirection.LEFT); }
+  next() { this._cycleToSelected(this._getNextSlide(this.activeIdx), NgbSlideEventDirection.LEFT); }
 
   /**
    * Stops the carousel from cycling through items.
@@ -195,47 +201,36 @@ export class NgbCarousel implements AfterContentChecked,
    */
   cycle() { this._start$.next(); }
 
-  private _cycleToSelected(slideIdx: string, direction: NgbSlideEventDirection) {
-    let selectedSlide = this._getSlideById(slideIdx);
-    if (selectedSlide && selectedSlide.id !== this.activeId) {
-      this.slide.emit({prev: this.activeId, current: selectedSlide.id, direction: direction});
+  private _cycleToSelected(slideIdx: number, direction: NgbSlideEventDirection) {
+    // let selectedSlide = this._getSlideById(slideIdx);
+    // if (selectedSlide && selectedSlide.id !== this.activeIdx) {
+      this.slide.emit({prev: this.activeIdx, current: slideIdx, direction: direction});
       this._start$.next();
-      this.activeId = selectedSlide.id;
-    }
+      this.activeIdx = slideIdx;
+    // }
 
     // we get here after the interval fires or any external API call like next(), prev() or select()
     this._cd.markForCheck();
   }
 
-  private _getSlideEventDirection(currentActiveSlideId: string, nextActiveSlideId: string): NgbSlideEventDirection {
-    const currentActiveSlideIdx = this._getSlideIdxById(currentActiveSlideId);
-    const nextActiveSlideIdx = this._getSlideIdxById(nextActiveSlideId);
-
+  private _getSlideEventDirection(currentActiveSlideIdx: number, nextActiveSlideIdx: number): NgbSlideEventDirection {
     return currentActiveSlideIdx > nextActiveSlideIdx ? NgbSlideEventDirection.RIGHT : NgbSlideEventDirection.LEFT;
   }
 
-  private _getSlideById(slideId: string): NgbSlideDirective { return this.slides.find(slide => slide.id === slideId); }
-
-  private _getSlideIdxById(slideId: string): number {
-    return this.slides.toArray().indexOf(this._getSlideById(slideId));
-  }
-
-  private _getNextSlide(currentSlideId: string): string {
+  private _getNextSlide(currentSlideIdx: number): number {
     const slideArr = this.slides.toArray();
-    const currentSlideIdx = this._getSlideIdxById(currentSlideId);
     const isLastSlide = currentSlideIdx === slideArr.length - 1;
 
-    return isLastSlide ? (this.wrap ? slideArr[0].id : slideArr[slideArr.length - 1].id) :
-                         slideArr[currentSlideIdx + 1].id;
+    return isLastSlide ? (this.wrap ? 0 : slideArr.length - 1) :
+                         currentSlideIdx + 1;
   }
 
-  private _getPrevSlide(currentSlideId: string): string {
+  private _getPrevSlide(currentSlideIdx: number): number {
     const slideArr = this.slides.toArray();
-    const currentSlideIdx = this._getSlideIdxById(currentSlideId);
     const isFirstSlide = currentSlideIdx === 0;
 
-    return isFirstSlide ? (this.wrap ? slideArr[slideArr.length - 1].id : slideArr[0].id) :
-                          slideArr[currentSlideIdx - 1].id;
+    return isFirstSlide ? (this.wrap ? slideArr.length - 1 : 0) :
+                          currentSlideIdx - 1;
   }
 }
 
@@ -244,14 +239,14 @@ export class NgbCarousel implements AfterContentChecked,
  */
 export interface NgbSlideEvent {
   /**
-   * Previous slide id
+   * Previous slide idx
    */
-  prev: string;
+  prev: number;
 
   /**
-   * New slide ids
+   * New slide idx
    */
-  current: string;
+  current: number;
 
   /**
    * Slide event direction
