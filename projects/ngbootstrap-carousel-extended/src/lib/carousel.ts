@@ -55,10 +55,19 @@ export class NgbSlideDirective {
     '(keydown.arrowLeft)': 'keyboard && prev()',
     '(keydown.arrowRight)': 'keyboard && next()'
   },
+  styles: [`
+    .carousel-item {
+      margin-right: 10px;
+      width: unset;
+    }
+    .carousel-item.active {
+      display: inline-block;
+    }
+  `],
   template: `
-    <ol class="carousel-indicators" *ngIf="showNavigationIndicators">
-      <li *ngFor="let slide of slides; index as i;" [id]="slide.id" 
-          [class.active]="i === activeIdx || (i > activeIdx && i < activeIdx + previewSize)"
+    <ol class="carousel-indicators" *ngIf="showNavigationIndicators && slides.length > previewSize">
+      <li *ngFor="let i of slideIndexes" 
+          [class.active]="i === activeIdx"
           (click)="select(i); pauseOnHover && pause()"></li>
     </ol>
     <div class="carousel-inner">
@@ -67,11 +76,11 @@ export class NgbSlideDirective {
         <ng-container [ngTemplateOutlet]="slide.tplRef"></ng-container>
       </div>
     </div>
-    <a class="carousel-control-prev" role="button" (click)="prev()" *ngIf="showNavigationArrows">
+    <a class="carousel-control-prev" role="button" (click)="prev()" *ngIf="showNavigationArrows && slides.length > previewSize">
       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
       <span class="sr-only" i18n="@@ngb.carousel.previous">Previous</span>
     </a>
-    <a class="carousel-control-next" role="button" (click)="next()" *ngIf="showNavigationArrows">
+    <a class="carousel-control-next" role="button" (click)="next()" *ngIf="showNavigationArrows && slides.length > previewSize">
       <span class="carousel-control-next-icon" aria-hidden="true"></span>
       <span class="sr-only" i18n="@@ngb.carousel.next">Next</span>
     </a>
@@ -124,7 +133,7 @@ export class NgbCarousel implements AfterContentChecked,
    */
   @Input() showNavigationIndicators: boolean;
 
-  previewSize = 1;
+  @Input() previewSize = 1;
 
   /**
    * A carousel slide event fired when the slide transition is completed.
@@ -133,6 +142,16 @@ export class NgbCarousel implements AfterContentChecked,
   @Output() slide = new EventEmitter<NgbSlideEvent>();
 
 
+  get slideIndexes(): number[] {
+    if (this.slides && this.slides.length) {
+      const result = this.slides.toArray()
+        .map((v, i) => i)
+        .filter(v => v % this.previewSize === 0);
+      result[result.length - 1] = this.slides.length - this.previewSize;
+      return result;
+    }
+    return [];
+  }
 
   constructor(
       config: NgbCarouselConfig, @Inject(PLATFORM_ID) private _platformId, private _ngZone: NgZone,
@@ -164,8 +183,7 @@ export class NgbCarousel implements AfterContentChecked,
   }
 
   ngAfterContentChecked() {
-    // let activeSlide = this._getSlideById(this.activeIdx);
-    this.activeIdx = this.activeIdx >= 0 && this.activeIdx < this.slides.length ? this.activeIdx : 0;
+    this.activeIdx = this.activeIdx >= 0 && this.activeIdx <= (this.slides.length - this.previewSize) ? this.activeIdx : 0;
   }
 
   ngOnDestroy() { this._destroy$.next(); }
@@ -202,12 +220,11 @@ export class NgbCarousel implements AfterContentChecked,
   cycle() { this._start$.next(); }
 
   private _cycleToSelected(slideIdx: number, direction: NgbSlideEventDirection) {
-    // let selectedSlide = this._getSlideById(slideIdx);
-    // if (selectedSlide && selectedSlide.id !== this.activeIdx) {
+    if (slideIdx !== this.activeIdx) {
       this.slide.emit({prev: this.activeIdx, current: slideIdx, direction: direction});
       this._start$.next();
       this.activeIdx = slideIdx;
-    // }
+    }
 
     // we get here after the interval fires or any external API call like next(), prev() or select()
     this._cd.markForCheck();
@@ -218,19 +235,23 @@ export class NgbCarousel implements AfterContentChecked,
   }
 
   private _getNextSlide(currentSlideIdx: number): number {
-    const slideArr = this.slides.toArray();
-    const isLastSlide = currentSlideIdx === slideArr.length - 1;
+    const slideIndexes = this.slideIndexes;
+    const lastValidSlideIdx = slideIndexes[slideIndexes.length - 1];
 
-    return isLastSlide ? (this.wrap ? 0 : slideArr.length - 1) :
-                         currentSlideIdx + 1;
+    const isLastSlide = currentSlideIdx === lastValidSlideIdx;
+    if (isLastSlide) {
+      return this.wrap ? 0 : currentSlideIdx;
+    }
+
+    return slideIndexes[slideIndexes.findIndex(v => v === currentSlideIdx) + 1];
   }
 
   private _getPrevSlide(currentSlideIdx: number): number {
-    const slideArr = this.slides.toArray();
+    const slideIndexes = this.slideIndexes;
     const isFirstSlide = currentSlideIdx === 0;
 
-    return isFirstSlide ? (this.wrap ? slideArr.length - 1 : 0) :
-                          currentSlideIdx - 1;
+    return isFirstSlide ? (this.wrap ? slideIndexes[slideIndexes.length - 1] : 0) :
+      slideIndexes[slideIndexes.findIndex(v => v === currentSlideIdx) - 1];
   }
 }
 

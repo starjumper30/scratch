@@ -21,6 +21,18 @@ export class AppComponent {
     },
     {
       title: 'tile 4'
+    },
+    {
+      title: 'tile 5'
+    },
+    {
+      title: 'tile 6'
+    },
+    {
+      title: 'tile 7'
+    },
+    {
+      title: 'tile 8'
     }
   ];
 }
