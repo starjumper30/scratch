@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build:libs": "ng build feature1 && ng build ex-lib2 && ng build noob-comm",
+    "build:libs": "ng build feature1 && ng build ex-lib2 && ng build noob-comm && ng build ngbootstrap-carousel-extended",
     "build": "npm run build:libs && ng build",
     "test": "ng test",
     "lint": "ng lint",

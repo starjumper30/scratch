@@ -11,6 +11,7 @@ import { FooBarComponent } from './foo-bar/foo-bar.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NgbCarouselModule} from '@ng-bootstrap/ng-bootstrap';
 import { TileComponent } from './tile/tile.component';
+import {NgbCarouselExtendedModule} from '../../projects/ngbootstrap-carousel-extended/src/lib/carousel.module';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { TileComponent } from './tile/tile.component';
     BrowserAnimationsModule,
     AppRoutingModule,
     ExLib2Module,
-    NgbCarouselModule
+    NgbCarouselModule,
+    NgbCarouselExtendedModule
   ],
   providers: [],
   bootstrap: [AppComponent]

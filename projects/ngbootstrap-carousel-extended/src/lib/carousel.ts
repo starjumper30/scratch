@@ -61,9 +61,8 @@ export class NgbSlideDirective {
           (click)="select(slide.id); pauseOnHover && pause()"></li>
     </ol>
     <div class="carousel-inner">
-      <!-- TODO change the [class.active] logic below to check if the slide index is in the current show range  -->
-      <div *ngFor="let slide of slides; let index as i" class="carousel-item" [class.active]="i is in the current show range">
-        <ng-template [ngTemplateOutlet]="slide.tplRef"></ng-template>
+      <div *ngFor="let slide of slides" class="carousel-item" [class.active]="slide.id === activeId">
+        <ng-container [ngTemplateOutlet]="slide.tplRef"></ng-container>
       </div>
     </div>
     <a class="carousel-control-prev" role="button" (click)="prev()" *ngIf="showNavigationArrows">

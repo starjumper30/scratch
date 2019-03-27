@@ -26,8 +26,15 @@
 <app-foo-bar></app-foo-bar>
 
 
-<ngb-carousel *ngIf="tileData">
+<ngb-carousel *ngIf="tileData" style="width: 200px">
   <ng-container *ngFor="let t of tileData">
       <app-tile *ngbSlide [data]="t"></app-tile>
   </ng-container>
 </ngb-carousel>
+
+
+<ngb-carousel-extended *ngIf="tileData" style="width: 200px">
+  <ng-container *ngFor="let t of tileData">
+    <app-tile *ngbSlideExtended [data]="t"></app-tile>
+  </ng-container>
+</ngb-carousel-extended>
