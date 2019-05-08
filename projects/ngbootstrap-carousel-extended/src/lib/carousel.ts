@@ -18,6 +18,7 @@ import {
   TemplateRef
 } from '@angular/core';
 import {isPlatformBrowser} from '@angular/common';
+import {trigger, style, transition, animate} from '@angular/animations';
 
 import {NgbCarouselConfig} from './carousel-config';
 
@@ -55,15 +56,37 @@ export class NgbSlideDirective {
     '(keydown.arrowLeft)': 'keyboard && prev()',
     '(keydown.arrowRight)': 'keyboard && next()'
   },
-  styles: [`
+  styles: [`    
     .carousel-item {
       margin-right: 10px;
       width: unset;
+      transition: none; /* Firefox/Edge fix: disable bootstraps css animations */
     }
     .carousel-item.active {
       display: inline-block;
     }
+    .carousel-item.carousel-item-prev {
+      display: inline-block;
+    }
+    .carousel-item.carousel-item-next {
+      display: inline-block;
+    }
   `],
+  animations: [
+    trigger('transition', [
+      transition('* => active_left', [style({ transform: 'translateX(0)' }),
+        animate('.6s ease', style({ transform: 'translateX(-100%)' }))]),
+
+      transition('* => active_right', [style({ transform: 'translateX(0)' }),
+        animate('.6s ease', style({ transform: 'translateX(100%)' }))]),
+
+      transition('* => left', [style({ transform: 'translateX(100%)' }),
+        animate('.6s ease', style({ transform: 'translateX(0)' }))]),
+
+      transition('* => right', [style({ transform: 'translateX(-100%)' }),
+        animate('.6s ease', style({ transform: 'translateX(0)' }))])
+    ])
+  ],
   template: `
     <ol class="carousel-indicators" *ngIf="showNavigationIndicators && slides.length > previewSize">
       <li *ngFor="let i of slideIndexes" 
@@ -71,9 +94,21 @@ export class NgbSlideDirective {
           (click)="select(i); pauseOnHover && pause()"></li>
     </ol>
     <div class="carousel-inner">
-      <div *ngFor="let slide of slides; index as i" class="carousel-item"
-           [class.active]="i === activeIdx || (i > activeIdx && i < activeIdx + previewSize)">
-        <ng-container [ngTemplateOutlet]="slide.tplRef"></ng-container>
+      <div class="slide-window" *ngFor="let si of slideIndexes" 
+           [class.active]="si === currentIdx"
+           [class.carousel-item-prev]="si === prevIdx"
+           [class.carousel-item-next]="si === nextIdx"
+           [@transition]="(
+          transition &&
+          (si === currentIdx || si === prevIdx || si === nextIdx) ?
+          (si === currentIdx ? 'active_' : '') + direction :
+          ''
+        )"
+           (@transition.done)="transitionDone(si)">
+        <div *ngFor="let slide of getSlideWindow(si); index as i" class="carousel-item"
+             [class.active]="si === currentIdx">
+          <ng-container [ngTemplateOutlet]="slide.tplRef"></ng-container>
+        </div>
       </div>
     </div>
     <a class="carousel-control-prev" role="button" (click)="prev()" *ngIf="showNavigationArrows && slides.length > previewSize">
@@ -88,16 +123,36 @@ export class NgbSlideDirective {
 })
 export class NgbCarousel implements AfterContentChecked,
     AfterContentInit, OnChanges, OnDestroy {
+
+
+  getSlideWindow(idx: number) {
+    return this.slides.toArray().slice(idx, idx + this.previewSize);
+  }
+
+
   @ContentChildren(NgbSlideDirective) slides: QueryList<NgbSlideDirective>;
 
   private _destroy$ = new Subject<void>();
   private _start$ = new Subject<void>();
   private _stop$ = new Subject<void>();
 
+  currentIdx: number;
+  private _activeIdx: number;
+  prevIdx: number;
+  nextIdx: number;
+  direction: NgbSlideEventDirection;
+  transition: boolean;
+
   /**
    * The active slide idx.
    */
-  @Input() activeIdx: number;
+  @Input() set activeIdx(idx: number) {
+    this.currentIdx = this._activeIdx = idx;
+  }
+
+  get activeIdx() {
+    return this._activeIdx;
+  }
 
 
   /**
@@ -136,11 +191,12 @@ export class NgbCarousel implements AfterContentChecked,
   @Input() previewSize = 1;
 
   /**
-   * A carousel slide event fired when the slide transition is completed.
+   * A carousel slide event fired when the slide transition is initialized.
    * See NgbSlideEvent for payload details
    */
-  @Output() slide = new EventEmitter<NgbSlideEvent>();
+  @Output() slideinit = new EventEmitter<NgbSlideEvent>();
 
+  @Output() slide = new EventEmitter<NgbSlideEvent>();
 
   get slideIndexes(): number[] {
     if (this.slides && this.slides.length) {
@@ -183,6 +239,10 @@ export class NgbCarousel implements AfterContentChecked,
   }
 
   ngAfterContentChecked() {
+    if (this.transition) {
+      return;
+    }
+
     this.activeIdx = this.activeIdx >= 0 && this.activeIdx <= (this.slides.length - this.previewSize) ? this.activeIdx : 0;
   }
 
@@ -220,14 +280,46 @@ export class NgbCarousel implements AfterContentChecked,
   cycle() { this._start$.next(); }
 
   private _cycleToSelected(slideIdx: number, direction: NgbSlideEventDirection) {
-    if (slideIdx !== this.activeIdx) {
-      this.slide.emit({prev: this.activeIdx, current: slideIdx, direction: direction});
-      this._start$.next();
-      this.activeIdx = slideIdx;
+    if (!this.transition) {
+      if (slideIdx !== this.activeIdx) {
+        this._start$.next();
+
+        this.currentIdx = this.activeIdx;
+        this.prevIdx = (direction === NgbSlideEventDirection.LEFT ? slideIdx : undefined);
+        this.nextIdx = (direction === NgbSlideEventDirection.RIGHT ? slideIdx : undefined);
+        this.direction = direction;
+        this._activeIdx = slideIdx;
+        this.transition = true;
+
+        this.slideinit.emit({prev: this.currentIdx, current: slideIdx, direction});
+      } else {
+        this.currentIdx = this._activeIdx = slideIdx;
+        this.transitionDone(slideIdx);
+      }
+
+      // we get here after the interval fires or any external API call like next(), prev() or select()
+      this._cd.markForCheck();
+    }
+  }
+
+  transitionDone(id: number) {
+    if (id !== this.activeIdx) {
+      return;
     }
 
-    // we get here after the interval fires or any external API call like next(), prev() or select()
-    this._cd.markForCheck();
+    const cid: number = this.currentIdx;
+    const dir: NgbSlideEventDirection = this.direction;
+
+    this.transition = false;
+    this.prevIdx = undefined;
+    this.nextIdx = undefined;
+    this.direction = undefined;
+    this.currentIdx = this.activeIdx;
+
+    /* this needs to be done last */
+    if (cid !== this.activeIdx) {
+      this.slide.emit({prev: cid, current: this.activeIdx, direction: dir});
+    }
   }
 
   private _getSlideEventDirection(currentActiveSlideIdx: number, nextActiveSlideIdx: number): NgbSlideEventDirection {
