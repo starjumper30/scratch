@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 module.exports = {
-    entry: './src/main.ts',
+    entry: './src/main.ts', 
     module: {
         rules: [
             {
@@ -11,17 +11,17 @@ module.exports = {
                 use: ['ts-loader', 'angular2-template-loader'],
                 exclude: /node_modules/
             },
-            {
+           /*  {
                 test: /\.(html|css)$/,
                 loader: 'raw-loader'
-            },
+            }, */
         ]
-    },
+    }, 
     resolve: {
         extensions: ['.ts', '.js'],
-        alias: {
+/*         alias: {
             '@': path.resolve(__dirname, 'src/app/'),
-        }
+        } */
     },
     plugins: [
         new HtmlWebpackPlugin({
