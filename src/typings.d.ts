@@ -1,0 +1,1 @@
+declare var config: any; // too much complaint cause of the global object!!
